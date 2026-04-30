@@ -35,6 +35,41 @@ class KernelReg1D(nn.Module):
 
 
 
+class pointwise_op_3D(nn.Module):
+    def __init__(self, in_codim, out_codim):
+        super().__init__()
+        self.conv = nn.Conv3d(int(in_codim), int(out_codim), 1)
+
+    def forward(self, x, dim1, dim2, dim3):
+        """
+        dim1,dim2,dim3 are the output dimensions (x,y,t)
+        """
+        x_out = self.conv(x)
+
+        ft = torch.fft.rfftn(x_out, dim=[-3, -2, -1])
+        ft_u = torch.zeros_like(ft)
+        ft_u[:, :, : (dim1 // 2), : (dim2 // 2), : (dim3 // 2)] = ft[
+            :, :, : (dim1 // 2), : (dim2 // 2), : (dim3 // 2)
+        ]
+        ft_u[:, :, -(dim1 // 2) :, : (dim2 // 2), : (dim3 // 2)] = ft[
+            :, :, -(dim1 // 2) :, : (dim2 // 2), : (dim3 // 2)
+        ]
+        ft_u[:, :, : (dim1 // 2), -(dim2 // 2) :, : (dim3 // 2)] = ft[
+            :, :, : (dim1 // 2), -(dim2 // 2) :, : (dim3 // 2)
+        ]
+        ft_u[:, :, -(dim1 // 2) :, -(dim2 // 2) :, : (dim3 // 2)] = ft[
+            :, :, -(dim1 // 2) :, -(dim2 // 2) :, : (dim3 // 2)
+        ]
+
+        x_out = torch.fft.irfftn(ft_u, s=(dim1, dim2, dim3))
+
+        x_out = torch.nn.functional.interpolate(
+            x_out, size=(dim1, dim2, dim3), mode="trilinear", align_corners=True
+        )
+        return x_out
+
+
+
 class MLP(nn.Module):
     def __init__(self, in_channels, out_channels, mid_channels):
         super(MLP, self).__init__()
