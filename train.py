@@ -15,7 +15,7 @@ from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
 ckpt_path = None
 exp = 'discrete_ssr'  # 'discrete_ssr', 'continuous_ssr_2x', 'continuous_ssr_4x'
 
-batch_size = 4
+batch_size = 2
 
 # Determine the experiment directory
 os.makedirs('./exp_results', exist_ok=True)

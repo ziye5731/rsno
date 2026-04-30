@@ -25,14 +25,14 @@ class RSNOLightningModule(L.LightningModule):
     def training_step(self, batch, batch_idx):
         inp, label = batch
         output = self(inp)
-        loss = self.loss(output, label[0], label[1])
+        loss = self.loss(output, label[0])
         self.log('train_loss', loss)
         return loss
     
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         inp, y = batch
         output = self(inp)
-        self.log(f'val{dataloader_idx}_loss', self.loss(output, y[0], y[1]))
+        self.log(f'val{dataloader_idx}_loss', self.loss(output, y[0]))
         
         for metric in METRICS:
             self.log(f'val{dataloader_idx}_{metric.__name__}', metric(output, y[0]).mean())
@@ -40,7 +40,7 @@ class RSNOLightningModule(L.LightningModule):
     def test_step(self, batch, batch_idx, dataloader_idx=0):
         inp, y = batch
         output = self(inp)
-        self.log(f'test{dataloader_idx}_loss', self.loss(output, y[0], y[1]))
+        self.log(f'test{dataloader_idx}_loss', self.loss(output, y[0]))
         
         for metric in METRICS:
             self.log(f'test{dataloader_idx}_{metric.__name__}', metric(output, y[0]).mean())
