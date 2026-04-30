@@ -73,3 +73,12 @@ python train.py
 ```
 
 After training, there will be a folder `exp_results/{exp}`, which contains the training log and checkpoint.
+
+## Inference
+Run `inference.py` to evaluate the trained RSNO model. You can edit `exp` variable in `inference.py` to specify the setting, and `rsno_dir` variable to specify the checkpoint to load.
+
+```
+python inference.py
+```
+
+After inference, there will be a folder `inference_results/{exp}/rsno/site_{i}`, which contains the HSI estimate in `.pt` format.
