@@ -60,9 +60,26 @@ Besides, we use spectral response functions (or, camera spectral sensitivities) 
 
 
 
-
 ### Atmospheric Radiative Transfer Prior
+
+#### SMARTS
 We use [SMARTS](https://instesre.org/GCCE/SMARTS2.pdf) to generate the atmospheric radiative transfer prior. The prior we generated is included in `rsno/SMARTS2` folder. You can also generate the prior by yourself by following the instructions [here](https://www.nlr.gov/grid/solar-resource/smarts).
+
+#### Py6S
+You can also generate the atmospheric radiative transfer prior using [Py6S](https://py6s.readthedocs.io/en/latest/) library. 
+We provide a simple script `6s_priors.py` to generate the priors using [Py6S](https://py6s.readthedocs.io/en/latest/).
+To run the code, you need to install the `Py6S` library first:
+
+```
+conda install py6s -c conda-forge
+```
+
+Then, you can run the script to generate the priors:
+
+```
+python 6s_priors.py --atmos {atmos} --aerosol {aerosol} --output_dir {output_dir}
+```
+Please refer to the script for more details on the arguments. 
 
 
 ## Training
