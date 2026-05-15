@@ -147,7 +147,7 @@ class CatUNO(nn.Module):
         x_c = [x0]
         for i in range(self.layers_c):
             x_c.append(
-                self.G_contract[i](x_c[-1], H//self.scales[i+1], W//self.scales[i+1], C_t//self.scales[i+1])  # [B_t, (2**(i+1))*width, H//2**(i+1), W//2**(i+1), C_t]
+                self.G_contract[i](x_c[-1], H//self.scales[i+1], W//self.scales[i+1], C_t//self.scales[i+1])  # [B_t, (2**(i+1))*width, H//2**(i+1), W//2**(i+1), C_t//2**(i+1)]
             )
             
 
@@ -155,17 +155,17 @@ class CatUNO(nn.Module):
         x_t = x_c[-1]
         for i in range(self.layers_t):
             x_t = self.G_transform[i](x_t, H//self.scales[-1], W//self.scales[-1], C_t//self.scales[-1]) + x_t
-            # [B_t, (2**(i+1))*width, H//2**(i+1), W//2**(i+1)]
+            # [B_t, (2**(i+1))*width, H//2**(i+1), W//2**(i+1), C_t//2**(i+1)]
 
         ## Expand
-        x_e = self.G_expand[0](x_t, H//self.scales[-2], W//self.scales[-2], C_t//self.scales[-2])  # [B_t, (2**(layers_c-1))*width, H//2**(layers_c-1), W//2**(layers_c-1), C_t]
+        x_e = self.G_expand[0](x_t, H//self.scales[-2], W//self.scales[-2], C_t//self.scales[-2])  # [B_t, (2**(layers_c-1))*width, H//2**(layers_c-1), W//2**(layers_c-1), C_t//2**(layers_c-1)]
         for i in range(1, self.layers_c):
-            # x_e: [B_t, (2**(layers_c-i))*width, H//2**(layers_c-i), W//2**(layers_c-i), C_t]
+            # x_e: [B_t, (2**(layers_c-i))*width, H//2**(layers_c-i), W//2**(layers_c-i), C_t//2**(layers_c-i)]
             x_e_in = torch.cat([x_e, x_c[-(i+1)]], dim=-4)
-            # [B_t, 2**(layers_c-i+1)*width, H//2**(layers_c-i), W//2**(layers_c-i), C_t]
+            # [B_t, 2**(layers_c-i+1)*width, H//2**(layers_c-i), W//2**(layers_c-i), C_t//2**(layers_c-i+1)]
 
             x_e = self.G_expand[i](x_e_in, H//self.scales[-(i+2)], W//self.scales[-(i+2)], C_t//self.scales[-(i+2)])
-            # [B_t, (2**(layers_c-i-1))*width, H//2**(layers_c-i-1), W//2**(layers_c-i-1), C_t]
+            # [B_t, (2**(layers_c-i-1))*width, H//2**(layers_c-i-1), W//2**(layers_c-i-1), C_t//2**(layers_c-i-1)]
 
         # Project
         ## x_e: [B_t, width, H, W, C_t]
